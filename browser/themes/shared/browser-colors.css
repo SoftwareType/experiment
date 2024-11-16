@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-:root {
+ :root {
   --toolbox-non-lwt-bgcolor: -moz-headerbar;
   --toolbox-non-lwt-textcolor: -moz-headerbartext;
   --toolbox-non-lwt-bgcolor-inactive: -moz-headerbarinactive;
@@ -12,6 +12,8 @@
   --sidebar-text-color: -moz-sidebartext;
   --sidebar-border-color: -moz-sidebarborder;
 
+  --panel-separator-color: color-mix(in srgb, currentColor 25%, transparent);
+  --panel-shortcut-color: inherit;
   --tabs-navbar-separator-color: ThreeDShadow;
   --tabs-navbar-separator-style: solid;
 
@@ -26,6 +28,8 @@
   --urlbar-box-hover-text-color: var(--urlbar-box-text-color);
   --urlbar-icon-fill-opacity: 0.9;
   @media (prefers-contrast) {
+    --autocomplete-popup-separator-color: color-mix(in srgb, currentColor 86%, transparent);
+    --panel-separator-color: currentColor;
     --urlbar-icon-fill-opacity: 1;
   }
 

@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #aboutDialogContainer {
-  background-color: #130829;
+  background: #000000 no-repeat url("chrome://branding/content/about-background.png");
+  object-fit: contain;
   color: #fff;
   color-scheme: dark;
 }

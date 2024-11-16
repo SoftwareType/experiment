@@ -15053,6 +15053,11 @@
   value: 2
   mirror: always
 
+- name: security.csp.enable
+  type: bool
+  value: true
+  mirror: always
+
 # If true, all toplevel data: URI navigations will be blocked.
 # Please note that manually entering a data: URI in the
 # URL-Bar will not be blocked when flipping this pref.
@@ -16901,6 +16906,12 @@
 
 # Whether enable windows-modern mode for stylesheets
 - name: widget.windows-style.modern
+  type: bool
+  value: false
+  mirror: always
+
+# Whether enable windows fog for style
+- name: widget.windows-style.show-fog
   type: bool
   value: false
   mirror: always

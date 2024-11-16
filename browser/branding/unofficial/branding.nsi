@@ -8,17 +8,17 @@
 
 # BrandFullNameInternal is used for some registry and file system values
 # instead of BrandFullName and typically should not be modified.
-!define BrandFullNameInternal "Mozilla Developer Preview"
-!define BrandFullName         "Mozilla Developer Preview"
-!define CompanyName           "mozilla.org"
-!define URLInfoAbout          "https://www.mozilla.org"
-!define HelpLink              "https://support.mozilla.org"
+!define BrandFullNameInternal "Marble"
+!define BrandFullName         "Marble Browser"
+!define CompanyName           "Marblefox Team"
+!define URLInfoAbout          "https://github.com/Erizur/marble"
+!define HelpLink              "https://github.com/Erizur/marble/issues"
 
-!define URLStubDownloadX86 "https://download.mozilla.org/?os=win&lang=${AB_CD}&product=firefox-latest"
-!define URLStubDownloadAMD64 "https://download.mozilla.org/?os=win64&lang=${AB_CD}&product=firefox-latest"
-!define URLStubDownloadAArch64 "https://download.mozilla.org/?os=win64-aarch64&lang=${AB_CD}&product=firefox-latest"
-!define URLManualDownload "https://www.mozilla.org/${AB_CD}/firefox/installer-help/?channel=release&installer_lang=${AB_CD}"
-!define URLSystemRequirements "https://www.mozilla.org/firefox/system-requirements/"
+!define URLStubDownloadX86 ""
+!define URLStubDownloadAMD64 ""
+!define URLStubDownloadAArch64 ""
+!define URLManualDownload ""
+!define URLSystemRequirements ""
 !define Channel "unofficial"
 
 # The installer's certificate name and issuer expected by the stub installer

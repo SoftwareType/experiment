@@ -59,11 +59,11 @@ warningDesc-version = { -brand-short-name } is experimental and may be unstable.
 aboutdialog-help-user = { -brand-product-name } Help
 aboutdialog-submit-feedback = Submit Feedback
 
-community-exp = <label data-l10n-name="community-exp-mozillaLink">{ -vendor-short-name }</label> is a <label data-l10n-name="community-exp-creditsLink">global community</label> working together to keep the Web open, public and accessible to all.
+community-exp = <label data-l10n-name="community-exp-mozillaLink">Mozilla</label> is a <label data-l10n-name="community-exp-creditsLink">global community</label> working together to keep the Web open, public and accessible to all.
 
-community-2 = { -brand-short-name } is designed by <label data-l10n-name="community-mozillaLink">{ -vendor-short-name }</label>, a <label data-l10n-name="community-creditsLink">global community</label> working together to keep the Web open, public and accessible to all.
+community-2 = { -brand-short-name } is developed by the <label data-l10n-name="community-mozillaLink">{ -vendor-short-name }</label>. This browser's purpose is to restore native design features.
 
-helpus = Want to help? <label data-l10n-name="helpus-donateLink">Make a donation</label> or <label data-l10n-name="helpus-getInvolvedLink">get involved!</label>
+helpus = Want to help? <label data-l10n-name="helpus-getInvolvedLink">Get involved!</label>
 
 bottomLinks-license = Licensing Information
 bottomLinks-rights = End-User Rights

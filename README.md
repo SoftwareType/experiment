@@ -1,4 +1,23 @@
-An explanation of the Firefox Source Code Directory Structure and links to
+# Marble Browser (Marblefox)
+A Firefox-based web browser that aims to restore native design features. It's still pretty barebones, but give it a try!
+Current options include:
+- Native controls (tooltips, scrollbars, menus)
+- Native titlebar (Windows Aero / Normal 10 Looks)
+- Customizability
+
+## FAQ
+Work in progress.
+
+## Credits
+- Aubrey Pankow (aubymori) - Nara Browser additions
+- Isabella Lulamoon (kawapure) - Native Controls Patch
+- r3dfox Team - Code snippets
+- Mozilla - Made Firefox Browser
+- My house - Food and Electricity
+
+## Original Firefox README.txt
+
+```An explanation of the Firefox Source Code Directory Structure and links to
 project pages with documentation can be found at:
 
     https://firefox-source-docs.mozilla.org/contributing/directory_structure.html
@@ -18,4 +37,4 @@ Nightly development builds can be downloaded from:
     https://www.mozilla.org/firefox/channel/desktop/#nightly
 
 Keep in mind that nightly builds, which are used by Firefox developers for
-testing, may be buggy.
+testing, may be buggy.```
