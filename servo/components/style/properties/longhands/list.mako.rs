@@ -81,7 +81,6 @@ ${helpers.predefined_type(
     "computed::ClipRectOrAuto::auto()",
     engines="gecko",
     gecko_ffi_name="mImageRegion",
-    animation_value_type="ComputedValue",
     boxed=True,
     spec="Nonstandard (https://developer.mozilla.org/en-US/docs/Web/CSS/-moz-image-region)",
     affects="layout",

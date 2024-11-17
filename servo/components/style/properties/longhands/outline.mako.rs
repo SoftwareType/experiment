@@ -44,7 +44,6 @@ ${helpers.predefined_type(
         "computed::BorderCornerRadius::zero()",
         engines="gecko",
         boxed=True,
-        animation_value_type="BorderCornerRadius",
         spec="Nonstandard (https://developer.mozilla.org/en-US/docs/Web/CSS/-moz-outline-radius)",
         affects="paint",
     )}

@@ -2325,7 +2325,7 @@ LayoutDeviceIntSize nsNativeThemeWin::GetMinimumWidgetSize(
 
     case StyleAppearance::SpinnerUpbutton:
     case StyleAppearance::SpinnerDownbutton: {
-        LayoutDeviceIntSize result(18, 9);
+        LayoutDeviceIntSize result(16, 9);
         ScaleForFrameDPI(&result, aFrame);
         return result;
     }
