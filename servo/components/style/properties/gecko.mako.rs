@@ -664,8 +664,11 @@ fn static_assert() {
     }
 </%self:impl_trait>
 
+<% skip_outline_longhands = " ".join("outline-style outline-width".split() +
+                                     ["-moz-outline-radius-{0}".format(x.replace("_", ""))
+                                      for x in CORNERS]) %>
 <%self:impl_trait style_struct_name="Outline"
-                  skip_longhands="outline-style outline-width">
+                  skip_longhands="${skip_outline_longhands}">
 
     pub fn set_outline_style(&mut self, v: longhands::outline_style::computed_value::T) {
         self.mOutlineStyle = v;
@@ -688,6 +691,12 @@ fn static_assert() {
     }
 
     ${impl_border_width("outline_width", "mActualOutlineWidth", "mOutlineWidth")}
+
+    % for corner in CORNERS:
+    <% impl_corner_style_coord("_moz_outline_radius_%s" % corner.replace("_", ""),
+                               "mOutlineRadius",
+                               corner) %>
+    % endfor
 
     pub fn outline_has_nonzero_width(&self) -> bool {
         self.mActualOutlineWidth != 0
