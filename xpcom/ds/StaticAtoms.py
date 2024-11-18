@@ -555,6 +555,8 @@ STATIC_ATOMS = [
     Atom("indeterminate", "indeterminate"),
     Atom("index", "index"),
     Atom("inert", "inert"),
+    Atom("innerHTML", "innerHTML"),
+    Atom("innerText", "innerText"),
     Atom("infinity", "infinity"),
     Atom("inherits", "inherits"),
     Atom("inheritOverflow", "inherit-overflow"),
@@ -983,6 +985,7 @@ STATIC_ATOMS = [
     Atom("orientation", "orientation"),
     Atom("origin_trial", "origin-trial"),
     Atom("otherwise", "otherwise"),
+    Atom("outerHTML", "outerHTML"),
     Atom("output", "output"),
     Atom("overflow", "overflow"),
     Atom("overflowBlock", "overflow-block"),
@@ -1247,6 +1250,7 @@ STATIC_ATOMS = [
     Atom("textAlign", "text-align"),
     Atom("textarea", "textarea"),
     Atom("textbox", "textbox"),
+    Atom("textContent", "textContent"),
     Atom("textLink", "text-link"),
     Atom("textOverlay", "text-overlay"),
     Atom("tfoot", "tfoot"),
@@ -2267,7 +2271,11 @@ STATIC_ATOMS = [
     Atom("_moz_overlay_scrollbar_fade_duration", "-moz-overlay-scrollbar-fade-duration"),
     Atom("_moz_windows_accent_color_in_titlebar", "-moz-windows-accent-color-in-titlebar"),
     Atom("_moz_windows_accent_color_in_tabs", "-moz-windows-accent-color-in-tabs"),
+<<<<<<< HEAD
     Atom("_moz_windows_default_theme", "-moz-windows-default-theme"),
+=======
+    Atom("_moz_windows_mica", "-moz-windows-mica"),
+>>>>>>> upstream/release
     Atom("_moz_mac_big_sur_theme", "-moz-mac-big-sur-theme"),
     Atom("_moz_mac_rtl", "-moz-mac-rtl"),
     Atom("_moz_mac_titlebar_height", "-moz-mac-titlebar-height"),
@@ -2431,7 +2439,6 @@ STATIC_ATOMS = [
     Atom("onpositionstatechange", "onpositionstatechange"),
     Atom("onsupportedkeyschange", "onsupportedkeyschange"),
     # Media query prefs for UA sheets.
-    Atom("dom_element_popover_enabled", "dom.element.popover.enabled"),
     Atom("mathml_legacy_mathvariant_attribute_disabled", "mathml.legacy_mathvariant_attribute.disabled"),
     Atom("layout_css_always_underline_links", "layout.css.always_underline_links"),
     Atom("layout_css_cached_scrollbar_styles_enabled", "layout.css.cached-scrollbar-styles.enabled"),

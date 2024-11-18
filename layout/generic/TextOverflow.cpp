@@ -811,7 +811,7 @@ bool TextOverflow::HasClippedTextOverflow(nsIFrame* aBlockFrame) {
 /* static */
 bool TextOverflow::HasBlockEllipsis(nsIFrame* aBlockFrame) {
   nsBlockFrame* f = do_QueryFrame(aBlockFrame);
-  return f && f->HasAnyStateBits(NS_BLOCK_HAS_LINE_CLAMP_ELLIPSIS);
+  return f && f->HasLineClampEllipsis();
 }
 
 static bool BlockCanHaveLineClampEllipsis(nsBlockFrame* aBlockFrame,
@@ -819,7 +819,7 @@ static bool BlockCanHaveLineClampEllipsis(nsBlockFrame* aBlockFrame,
   if (aBeforeReflow) {
     return aBlockFrame->IsInLineClampContext();
   }
-  return aBlockFrame->HasAnyStateBits(NS_BLOCK_HAS_LINE_CLAMP_ELLIPSIS);
+  return aBlockFrame->HasLineClampEllipsis();
 }
 
 /* static */

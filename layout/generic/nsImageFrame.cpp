@@ -929,8 +929,8 @@ AspectRatio nsImageFrame::ComputeIntrinsicRatioForImage(
   }
 
   if (aImage) {
-    if (Maybe<AspectRatio> fromImage = aImage->GetIntrinsicRatio()) {
-      return *fromImage;
+    if (AspectRatio fromImage = aImage->GetIntrinsicRatio()) {
+      return fromImage;
     }
   }
   if (ShouldUseMappedAspectRatio()) {
@@ -1111,11 +1111,7 @@ void nsImageFrame::Notify(imgIRequest* aRequest, int32_t aType,
   if (aType == imgINotificationObserver::LOAD_COMPLETE) {
     LargestContentfulPaint::MaybeProcessImageForElementTiming(
         static_cast<imgRequestProxy*>(aRequest), GetContent()->AsElement());
-    uint32_t imgStatus;
-    aRequest->GetImageStatus(&imgStatus);
-    nsresult status =
-        imgStatus & imgIRequest::STATUS_ERROR ? NS_ERROR_FAILURE : NS_OK;
-    return OnLoadComplete(aRequest, status);
+    return OnLoadComplete(aRequest);
   }
 }
 
@@ -1262,8 +1258,8 @@ void nsImageFrame::MaybeSendIntrinsicSizeAndRatioToEmbedder(
   }
 }
 
-void nsImageFrame::OnLoadComplete(imgIRequest* aRequest, nsresult aStatus) {
-  NotifyNewCurrentRequest(aRequest, aStatus);
+void nsImageFrame::OnLoadComplete(imgIRequest* aRequest) {
+  NotifyNewCurrentRequest(aRequest);
 }
 
 void nsImageFrame::ElementStateChanged(ElementState aStates) {
@@ -1315,12 +1311,15 @@ void nsImageFrame::UpdateIntrinsicSizeAndRatio() {
   }
 }
 
-void nsImageFrame::NotifyNewCurrentRequest(imgIRequest* aRequest,
-                                           nsresult aStatus) {
+void nsImageFrame::NotifyNewCurrentRequest(imgIRequest* aRequest) {
   nsCOMPtr<imgIContainer> image;
   aRequest->GetImage(getter_AddRefs(image));
-  NS_ASSERTION(image || NS_FAILED(aStatus),
+#ifdef DEBUG
+  uint32_t imgStatus;
+  aRequest->GetImageStatus(&imgStatus);
+  NS_ASSERTION(image || (imgStatus & imgIRequest::STATUS_ERROR),
                "Successful load with no container?");
+#endif
   UpdateImage(aRequest, image);
 }
 

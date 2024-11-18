@@ -2836,7 +2836,7 @@ nsStyleText::nsStyleText(const Document& aDocument)
       mWebkitTextStrokeColor(StyleColor::CurrentColor()),
       mTabSize(StyleNonNegativeLengthOrNumber::Number(8.f)),
       mWordSpacing(LengthPercentage::Zero()),
-      mLetterSpacing({0.}),
+      mLetterSpacing(LengthPercentage::Zero()),
       mTextUnderlineOffset(LengthPercentageOrAuto::Auto()),
       mTextDecorationSkipInk(StyleTextDecorationSkipInk::Auto),
       mTextUnderlinePosition(StyleTextUnderlinePosition::AUTO),
