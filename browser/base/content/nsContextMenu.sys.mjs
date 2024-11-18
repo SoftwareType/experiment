@@ -698,7 +698,7 @@ export class nsContextMenu {
           !this.inSyntheticDoc &&
           !this.inPDFViewer
       );
-      document.getElementById("context-viewbgimage").disabled = !this.hasBGImage;
+      this.document.getElementById("context-viewbgimage").disabled = !this.hasBGImage;
 
     // Save image depends on having loaded its content.
     this.showItem(
