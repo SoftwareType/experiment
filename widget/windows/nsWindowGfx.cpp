@@ -159,7 +159,6 @@ bool nsWindow::OnPaint(uint32_t aNestingLevel) {
   KnowsCompositor* knowsCompositor = renderer->AsKnowsCompositor();
   WebRenderLayerManager* layerManager = renderer->AsWebRender();
 
-<<<<<<< HEAD
   // Clear window by transparent black when compositor window is used in GPU
   // process and non-client area rendering by DWM is enabled.
   // It is for showing non-client area rendering. See nsWindow::UpdateGlass().
@@ -201,23 +200,17 @@ bool nsWindow::OnPaint(uint32_t aNestingLevel) {
     ::FillRect(hdc, &rect,
                reinterpret_cast<HBRUSH>(::GetStockObject(BLACK_BRUSH)));
     ::ReleaseDC(mWnd, hdc);
-=======
-  const bool didResize = mBounds.Size() != mLastPaintBounds.Size();
->>>>>>> upstream/release
 
-  if (didResize && knowsCompositor && layerManager) {
+    mClearNCEdge.reset();
+  }
+
+  if (knowsCompositor && layerManager &&
+      !mBounds.IsEqualEdges(mLastPaintBounds)) {
     // Do an early async composite so that we at least have something on the
     // screen in the right place, even if the content is out of date.
     layerManager->ScheduleComposite(wr::RenderReasons::WIDGET);
   }
   mLastPaintBounds = mBounds;
-
-  RefPtr<nsWindow> strongThis(this);
-  if (nsIWidgetListener* listener = GetPaintListener()) {
-    // WillPaintWindow will update our transparent area if needed, which we use
-    // below. Note that this might kill the listener.
-    listener->WillPaintWindow(this);
-  }
 
   // For layered translucent windows all drawing should go to memory DC and no
   // WM_PAINT messages are normally generated. To support asynchronous painting
@@ -226,50 +219,30 @@ bool nsWindow::OnPaint(uint32_t aNestingLevel) {
   const bool usingMemoryDC =
       renderer->GetBackendType() == LayersBackend::LAYERS_NONE &&
       mTransparencyMode == TransparencyMode::Transparent;
-  const LayoutDeviceIntRect winRect = [&] {
-    RECT r;
-    ::GetWindowRect(mWnd, &r);
-    ::MapWindowPoints(nullptr, mWnd, (LPPOINT)&r, 2);
-    return WinUtils::ToIntRect(r);
-  }();
-  LayoutDeviceIntRegion region;
-  LayoutDeviceIntRegion translucentRegion;
-  // BeginPaint/EndPaint must be called to make Windows think that invalid
-  // area is painted. Otherwise it will continue sending the same message
-  // endlessly. Note that we need to call it after WillPaintWindow, which
-  // informs us of our transparent region, but also before clearing the
-  // nc-area, since ::BeginPaint might send WM_NCPAINT messages[1].
-  // [1]:
-  // https://learn.microsoft.com/en-us/windows/win32/gdi/the-wm-paint-message
-  HDC hDC = ::BeginPaint(mWnd, &ps);
+
+  HDC hDC = nullptr;
   if (usingMemoryDC) {
+    // BeginPaint/EndPaint must be called to make Windows think that invalid
+    // area is painted. Otherwise it will continue sending the same message
+    // endlessly.
+    ::BeginPaint(mWnd, &ps);
     ::EndPaint(mWnd, &ps);
     // We're guaranteed to have a widget proxy since we called
     // GetLayerManager().
     hDC = mBasicLayersSurface->GetTransparentDC();
-    region = translucentRegion = LayoutDeviceIntRegion{winRect};
   } else {
-    region = GetRegionToPaint(ps, hDC);
-    if (mTransparencyMode == TransparencyMode::Transparent) {
-      translucentRegion = LayoutDeviceIntRegion{winRect};
-      translucentRegion.SubOut(mOpaqueRegion);
-      region.OrWith(translucentRegion);
-    }
-
-    if (mNeedsNCAreaClear ||
-        (didResize && mTransparencyMode == TransparencyMode::Transparent)) {
-      // We need to clear the non-client-area region, and the transparent parts
-      // of the window to black (once).
-      auto black = reinterpret_cast<HBRUSH>(::GetStockObject(BLACK_BRUSH));
-      nsAutoRegion regionToClear(ComputeNonClientHRGN());
-      if (!translucentRegion.IsEmpty()) {
-        nsAutoRegion translucent(WinUtils::RegionToHRGN(translucentRegion));
-        ::CombineRgn(regionToClear, regionToClear, translucent, RGN_OR);
-      }
-      ::FillRgn(hDC, regionToClear, black);
-    }
+    hDC = ::BeginPaint(mWnd, &ps);
   }
-  mNeedsNCAreaClear = false;
+
+  const bool forceRepaint = mTransparencyMode == TransparencyMode::Transparent;
+  const LayoutDeviceIntRegion region = GetRegionToPaint(ps, hDC);
+
+  RefPtr<nsWindow> strongThis(this);
+
+  if (nsIWidgetListener* listener = GetPaintListener()) {
+    // Note that this might kill the listener.
+    listener->WillPaintWindow(this);
+  }
 
   bool didPaint = false;
   auto endPaint = MakeScopeExit([&] {

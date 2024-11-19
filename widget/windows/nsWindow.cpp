@@ -959,9 +959,6 @@ nsresult nsWindow::Create(nsIWidget* aParent, const LayoutDeviceIntRect& aRect,
       // default prefs on Windows. Bug 1673092 tracks lining this up with
       // that more correctly instead of hard-coding it.
       SetNonClientMargins(LayoutDeviceIntMargin(0, 2, 2, 2));
-      // The skeleton UI already painted over the NC area, so there's no need
-      // to do that again; the effective non-client margins haven't changed.
-      mNeedsNCAreaClear = false;
 
       // Reset the WNDPROC for this window and its whole class, as we had
       // to use our own WNDPROC when creating the the skeleton UI window.
@@ -1931,7 +1928,6 @@ void nsWindow::Move(double aX, double aY) {
       }
     }
 #endif
-<<<<<<< HEAD
 
     // Normally, when the skeleton UI is disabled, we resize+move the window
     // before showing it in order to ensure that it restores to the correct
@@ -1973,15 +1969,6 @@ void nsWindow::Move(double aX, double aY) {
       if (WinUtils::LogToPhysFactor(mWnd) != oldScale) {
         ChangedDPI();
       }
-=======
-    UINT flags = SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSIZE;
-    double oldScale = mDefaultScale;
-    mResizeState = IN_SIZEMOVE;
-    VERIFY(::SetWindowPos(mWnd, nullptr, x, y, 0, 0, flags));
-    mResizeState = NOT_RESIZING;
-    if (WinUtils::LogToPhysFactor(mWnd) != oldScale) {
-      ChangedDPI();
->>>>>>> upstream/release
     }
 
     ResizeDirectManipulationViewport();
@@ -2014,18 +2001,6 @@ void nsWindow::Resize(double aWidth, double aHeight, bool aRepaint) {
     return;
   }
 
-  // Refer to the comment above a similar check in nsWindow::Move
-  if (mIsShowingPreXULSkeletonUI && WasPreXULSkeletonUIMaximized()) {
-    WINDOWPLACEMENT pl = {sizeof(WINDOWPLACEMENT)};
-    VERIFY(::GetWindowPlacement(mWnd, &pl));
-    pl.rcNormalPosition.right = pl.rcNormalPosition.left + width;
-    pl.rcNormalPosition.bottom = pl.rcNormalPosition.top + GetHeight(height);
-    mResizeState = RESIZING;
-    VERIFY(::SetWindowPlacement(mWnd, &pl));
-    mResizeState = NOT_RESIZING;
-    return;
-  }
-
   // Set cached value for lightweight and printing
   bool wasLocking = mAspectRatio != 0.0;
   mBounds.SizeTo(width, height);
@@ -2034,7 +2009,6 @@ void nsWindow::Resize(double aWidth, double aHeight, bool aRepaint) {
   }
 
   if (mWnd) {
-<<<<<<< HEAD
     // Refer to the comment above a similar check in nsWindow::Move
     if (mIsShowingPreXULSkeletonUI && WasPreXULSkeletonUIMaximized()) {
       WINDOWPLACEMENT pl = {sizeof(WINDOWPLACEMENT)};
@@ -2061,19 +2035,6 @@ void nsWindow::Resize(double aWidth, double aHeight, bool aRepaint) {
       if (WinUtils::LogToPhysFactor(mWnd) != oldScale) {
         ChangedDPI();
       }
-=======
-    UINT flags = SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE;
-    if (!aRepaint) {
-      flags |= SWP_NOREDRAW;
-    }
-    double oldScale = mDefaultScale;
-    mResizeState = RESIZING;
-    VERIFY(
-        ::SetWindowPos(mWnd, nullptr, 0, 0, width, GetHeight(height), flags));
-    mResizeState = NOT_RESIZING;
-    if (WinUtils::LogToPhysFactor(mWnd) != oldScale) {
-      ChangedDPI();
->>>>>>> upstream/release
     }
     ResizeDirectManipulationViewport();
   }
@@ -2111,49 +2072,21 @@ void nsWindow::Resize(double aX, double aY, double aWidth, double aHeight,
     return;
   }
 
-  // Refer to the comment above a similar check in nsWindow::Move
-  if (mIsShowingPreXULSkeletonUI && WasPreXULSkeletonUIMaximized()) {
-    WINDOWPLACEMENT pl = {sizeof(WINDOWPLACEMENT)};
-    VERIFY(::GetWindowPlacement(mWnd, &pl));
-
-    HMONITOR monitor = ::MonitorFromWindow(mWnd, MONITOR_DEFAULTTONULL);
-    if (NS_WARN_IF(!monitor)) {
-      return;
-    }
-    MONITORINFO mi = {sizeof(MONITORINFO)};
-    VERIFY(::GetMonitorInfo(monitor, &mi));
-
-    int32_t deltaX =
-        x + mi.rcWork.left - mi.rcMonitor.left - pl.rcNormalPosition.left;
-    int32_t deltaY =
-        y + mi.rcWork.top - mi.rcMonitor.top - pl.rcNormalPosition.top;
-    pl.rcNormalPosition.left += deltaX;
-    pl.rcNormalPosition.right = pl.rcNormalPosition.left + width;
-    pl.rcNormalPosition.top += deltaY;
-    pl.rcNormalPosition.bottom = pl.rcNormalPosition.top + GetHeight(height);
-    VERIFY(::SetWindowPlacement(mWnd, &pl));
-    return;
-  }
-
   // Set cached value for lightweight and printing
   mBounds.SetRect(x, y, width, height);
 
   if (mWnd) {
-    UINT flags = SWP_NOZORDER | SWP_NOACTIVATE;
-    if (!aRepaint) {
-      flags |= SWP_NOREDRAW;
-    }
+    // Refer to the comment above a similar check in nsWindow::Move
+    if (mIsShowingPreXULSkeletonUI && WasPreXULSkeletonUIMaximized()) {
+      WINDOWPLACEMENT pl = {sizeof(WINDOWPLACEMENT)};
+      VERIFY(::GetWindowPlacement(mWnd, &pl));
+      HMONITOR monitor = ::MonitorFromWindow(mWnd, MONITOR_DEFAULTTONULL);
+      if (NS_WARN_IF(!monitor)) {
+        return;
+      }
+      MONITORINFO mi = {sizeof(MONITORINFO)};
+      VERIFY(::GetMonitorInfo(monitor, &mi));
 
-    double oldScale = mDefaultScale;
-    mResizeState = RESIZING;
-    VERIFY(
-        ::SetWindowPos(mWnd, nullptr, x, y, width, GetHeight(height), flags));
-    mResizeState = NOT_RESIZING;
-    if (WinUtils::LogToPhysFactor(mWnd) != oldScale) {
-      ChangedDPI();
-    }
-
-<<<<<<< HEAD
       int32_t deltaX =
           x + mi.rcWork.left - mi.rcMonitor.left - pl.rcNormalPosition.left;
       int32_t deltaY =
@@ -2187,16 +2120,7 @@ void nsWindow::Resize(double aX, double aY, double aWidth, double aHeight,
         ::SetWindowPos(mTransitionWnd, HWND_TOPMOST, 0, 0, 0, 0,
                        SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
       }
-=======
-    if (mTransitionWnd) {
-      // If we have a fullscreen transition window, we need to make
-      // it topmost again, otherwise the taskbar may be raised by
-      // the system unexpectedly when we leave fullscreen state.
-      ::SetWindowPos(mTransitionWnd, HWND_TOPMOST, 0, 0, 0, 0,
-                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
->>>>>>> upstream/release
     }
-
     ResizeDirectManipulationViewport();
   }
 
@@ -2847,19 +2771,18 @@ bool nsWindow::UpdateNonClientMargins(bool aReflowWindow) {
       } else if (ABE_BOTTOM == edge || ABE_TOP == edge) {
         mNonClientOffset.bottom -= kHiddenTaskbarSize;
       }
+
+      // When we are drawing the non-client region, we need
+      // to clear the portion of the NC region that is exposed by the
+      // hidden taskbar.  As above, we clear the bottom of the NC region
+      // when the taskbar is at the top of the screen.
+      UINT clearEdge = (edge == ABE_TOP) ? ABE_BOTTOM : edge;
+      mClearNCEdge = Some(clearEdge);
     }
   } else {
     mNonClientOffset = NormalWindowNonClientOffset();
   }
 
-<<<<<<< HEAD
-=======
-  UpdateOpaqueRegionInternal();
-  // We probably shouldn't need to clear the NC-area if we're an opaque window,
-  // but we need to in order to work around bug 642851.
-  mNeedsNCAreaClear = true;
-
->>>>>>> upstream/release
   if (aReflowWindow) {
     // Force a reflow of content based on the new client
     // dimensions.
@@ -2886,7 +2809,6 @@ nsresult nsWindow::SetNonClientMargins(const LayoutDeviceIntMargin& margins) {
 
   mFutureMarginsToUse = false;
 
-<<<<<<< HEAD
   // Request for a reset
   if (margins.top == -1 && margins.left == -1 && margins.right == -1 &&
       margins.bottom == -1) {
@@ -2910,17 +2832,12 @@ nsresult nsWindow::SetNonClientMargins(const LayoutDeviceIntMargin& margins) {
     return NS_ERROR_INVALID_ARG;
   }
 
-=======
-  // -1 margins request a reset
-  mCustomNonClient = margins != LayoutDeviceIntMargin(-1, -1, -1, -1);
->>>>>>> upstream/release
   mNonClientMargins = margins;
 
-  // Force a reflow of content based on the new client dimensions.
-  if (mCustomNonClient) {
-    UpdateNonClientMargins();
-  } else {
-    ResetLayout();
+  mCustomNonClient = true;
+  if (!UpdateNonClientMargins()) {
+    NS_WARNING("UpdateNonClientMargins failed!");
+    return NS_OK;
   }
 
   return NS_OK;
@@ -2933,7 +2850,7 @@ void nsWindow::SetResizeMargin(mozilla::LayoutDeviceIntCoord aResizeMargin) {
   UpdateNonClientMargins();
 }
 
-nsAutoRegion nsWindow::ComputeNonClientHRGN() {
+void nsWindow::InvalidateNonClientRegion() {
   // +-+-----------------------+-+
   // | | app non-client chrome | |
   // | +-----------------------+ |
@@ -2949,20 +2866,24 @@ nsAutoRegion nsWindow::ComputeNonClientHRGN() {
   RECT rect;
   GetWindowRect(mWnd, &rect);
   MapWindowPoints(nullptr, mWnd, (LPPOINT)&rect, 2);
-  nsAutoRegion winRgn(::CreateRectRgnIndirect(&rect));
+  HRGN winRgn = CreateRectRgnIndirect(&rect);
 
   // Subtract app client chrome and app content leaving
   // windows non-client chrome and app non-client chrome
   // in winRgn.
-  ::GetWindowRect(mWnd, &rect);
+  GetWindowRect(mWnd, &rect);
   rect.top += mCaptionHeight;
   rect.right -= mHorResizeMargin;
   rect.bottom -= mVertResizeMargin;
   rect.left += mHorResizeMargin;
-  ::MapWindowPoints(nullptr, mWnd, (LPPOINT)&rect, 2);
-  nsAutoRegion clientRgn(::CreateRectRgnIndirect(&rect));
-  ::CombineRgn(winRgn, winRgn, clientRgn, RGN_DIFF);
-  return nsAutoRegion(winRgn.out());
+  MapWindowPoints(nullptr, mWnd, (LPPOINT)&rect, 2);
+  HRGN clientRgn = CreateRectRgnIndirect(&rect);
+  CombineRgn(winRgn, winRgn, clientRgn, RGN_DIFF);
+  DeleteObject(clientRgn);
+
+  // triggers ncpaint and paint events for the two areas
+  RedrawWindow(mWnd, nullptr, winRgn, RDW_FRAME | RDW_INVALIDATE);
+  DeleteObject(winRgn);
 }
 
 HRGN nsWindow::ExcludeNonClientFromPaintRegion(HRGN aRegion) {
@@ -5371,15 +5292,12 @@ bool nsWindow::ProcessMessageInternal(UINT msg, WPARAM& wParam, LPARAM& lParam,
       }
 
     case WM_NCACTIVATE: {
-<<<<<<< HEAD
       /*
        * WM_NCACTIVATE paints nc areas. Avoid this and re-route painting
        * through WM_NCPAINT via InvalidateNonClientRegion.
        */
       UpdateGetWindowInfoCaptionStatus(FALSE != wParam);
 
-=======
->>>>>>> upstream/release
       if (!mCustomNonClient) {
         break;
       }
@@ -5391,7 +5309,6 @@ bool nsWindow::ProcessMessageInternal(UINT msg, WPARAM& wParam, LPARAM& lParam,
             "nsWindow::ForcePresent", this, &nsWindow::ForcePresent));
       }
 
-<<<<<<< HEAD
       // let the dwm handle nc painting on glass
       // Never allow native painting if we are on fullscreen
       if (mFrameState->GetSizeMode() != nsSizeMode_Fullscreen &&
@@ -5414,19 +5331,6 @@ bool nsWindow::ProcessMessageInternal(UINT msg, WPARAM& wParam, LPARAM& lParam,
         break;
       }
     }
-=======
-      // ::DefWindowProc would paint nc areas. Avoid this, since we just want
-      // dwm to take care of re-displaying the glass effect if any. Quoting the
-      // docs[1]:
-      //
-      //     If this parameter is set to -1, DefWindowProc does not repaint the
-      //     nonclient area to reflect the state change.
-      //
-      // [1]:
-      // https://learn.microsoft.com/en-us/windows/win32/winmsg/wm-ncactivate
-      lParam = -1;
-    } break;
->>>>>>> upstream/release
 
     case WM_NCPAINT: {
       /*
@@ -5434,7 +5338,6 @@ bool nsWindow::ProcessMessageInternal(UINT msg, WPARAM& wParam, LPARAM& lParam,
        * do seem to always send a WM_NCPAINT message, so let's update on that.
        */
       gfxDWriteFont::UpdateSystemTextVars();
-<<<<<<< HEAD
 
       /*
        * Reset the non-client paint region so that it excludes the
@@ -5450,15 +5353,6 @@ bool nsWindow::ProcessMessageInternal(UINT msg, WPARAM& wParam, LPARAM& lParam,
       if (paintRgn != (HRGN)wParam) DeleteObject(paintRgn);
       *aRetValue = res;
       result = true;
-=======
-      if (mCustomNonClient &&
-          mTransparencyMode == TransparencyMode::Transparent) {
-        // We rely on dwm for glass / semi-transparent window painting, so we
-        // just need to make sure to clear the non-client area next time we get
-        // around to doing a main-thread paint.
-        mNeedsNCAreaClear = true;
-      }
->>>>>>> upstream/release
     } break;
 
     case WM_POWERBROADCAST:
@@ -7706,41 +7600,6 @@ void nsWindow::SetWindowTranslucencyInner(TransparencyMode aMode) {
                reinterpret_cast<HBRUSH>(GetStockObject(BLACK_BRUSH)));
     ReleaseDC(mWnd, hdc);
   }
-<<<<<<< HEAD
-=======
-  mOpaqueRegion = aRegion;
-  UpdateOpaqueRegionInternal();
-}
-
-void nsWindow::UpdateOpaqueRegionInternal() {
-  MARGINS margins{0};
-  if (mTransparencyMode == TransparencyMode::Transparent) {
-    // If there is no opaque region, set margins to support a full sheet of
-    // glass. Comments in MSDN indicate all values must be set to -1 to get a
-    // full sheet of glass.
-    margins = {-1, -1, -1, -1};
-    if (!mOpaqueRegion.IsEmpty()) {
-      LayoutDeviceIntRect clientBounds = GetClientBounds();
-      // Find the largest rectangle and use that to calculate the inset.
-      LayoutDeviceIntRect largest = mOpaqueRegion.GetLargestRectangle();
-      margins.cxLeftWidth = largest.X();
-      margins.cxRightWidth = clientBounds.Width() - largest.XMost();
-      margins.cyBottomHeight = clientBounds.Height() - largest.YMost();
-      margins.cyTopHeight = largest.Y();
-
-      auto ncmargin = NonClientSizeMargin();
-      margins.cxLeftWidth += ncmargin.left;
-      margins.cyTopHeight += ncmargin.top;
-      margins.cxRightWidth += ncmargin.right;
-      margins.cyBottomHeight += ncmargin.bottom;
-    }
-  }
-  DwmExtendFrameIntoClientArea(mWnd, &margins);
-  if (mTransparencyMode == TransparencyMode::Transparent) {
-    mNeedsNCAreaClear = true;
-    Invalidate();
-  }
->>>>>>> upstream/release
 }
 
 /**************************************************************

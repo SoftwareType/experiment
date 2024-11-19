@@ -940,7 +940,6 @@ class AsyncReset final : public Runnable {
   bool mScroll;
 };
 
-<<<<<<< HEAD
 nsresult nsListControlFrame::SetFormProperty(nsAtom* aName,
                                              const nsAString& aValue) {
   if (nsGkAtoms::selected == aName) {
@@ -956,18 +955,8 @@ nsresult nsListControlFrame::SetFormProperty(nsAtom* aName,
   return NS_OK;
 }
 
-void nsListControlFrame::DidReflow(nsPresContext* aPresContext,
-                                   const ReflowInput* aReflowInput) {
-  bool wasInterrupted = !mHasPendingInterruptAtStartOfReflow &&
-                        aPresContext->HasPendingInterrupt();
-
-  ScrollContainerFrame::DidReflow(aPresContext, aReflowInput);
-
-  if (mNeedToReset && !wasInterrupted) {
-=======
 bool nsListControlFrame::ReflowFinished() {
   if (mNeedToReset && !mReflowWasInterrupted) {
->>>>>>> upstream/release
     mNeedToReset = false;
     // Suppress scrolling to the selected element if we restored scroll
     // history state AND the list contents have not changed since we loaded

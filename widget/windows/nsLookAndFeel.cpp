@@ -500,7 +500,6 @@ nsresult nsLookAndFeel::NativeGetInt(IntID aID, int32_t& aResult) {
     case IntID::TreeScrollLinesMax:
       aResult = 3;
       break;
-<<<<<<< HEAD
     case IntID::WindowsClassic:
       aResult = !nsUXThemeData::IsAppThemed();
       break;
@@ -556,14 +555,9 @@ nsresult nsLookAndFeel::NativeGetInt(IntID aID, int32_t& aResult) {
       aResult = 0;
       break;
     }
-=======
-    case IntID::WindowsAccentColorInTitlebar:
-      aResult = mTitlebarColors.mUseAccent;
-      break;
     case IntID::WindowsMica:
       aResult = WinUtils::MicaEnabled();
       break;
->>>>>>> upstream/release
     case IntID::AlertNotificationOrigin:
       aResult = 0;
       {

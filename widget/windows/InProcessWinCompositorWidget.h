@@ -60,12 +60,9 @@ class InProcessWinCompositorWidget final
     return mTransparentSurfaceLock;
   }
 
-<<<<<<< HEAD
   bool HasGlass() const override;
 
-  nsSizeMode GetWindowSizeMode() const override;
-=======
->>>>>>> upstream/release
+  //nsSizeMode GetWindowSizeMode() const override;
   bool GetWindowIsFullyOccluded() const override;
 
   void ObserveVsync(VsyncObserver* aObserver) override;

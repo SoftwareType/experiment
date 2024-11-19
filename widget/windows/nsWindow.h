@@ -566,15 +566,11 @@ class nsWindow final : public nsBaseWidget {
   void UpdateDarkModeToolbar();
   void UpdateGetWindowInfoCaptionStatus(bool aActiveCaption);
   void ResetLayout();
-<<<<<<< HEAD
   void InvalidateNonClientRegion();
   HRGN ExcludeNonClientFromPaintRegion(HRGN aRegion);
   bool HasGlass() const {
     return mTransparencyMode == TransparencyMode::BorderlessGlass;
   }
-=======
-  nsAutoRegion ComputeNonClientHRGN();
->>>>>>> upstream/release
   HWND GetOwnerWnd() const { return ::GetWindow(mWnd, GW_OWNER); }
   bool IsOwnerForegroundWindow() const {
     HWND owner = GetOwnerWnd();
@@ -673,14 +669,8 @@ class nsWindow final : public nsBaseWidget {
   bool IsSimulatedClientArea(int32_t clientX, int32_t clientY);
   bool IsWindowButton(int32_t hitTestResult);
 
-<<<<<<< HEAD
-=======
-  void UpdateOpaqueRegion(const LayoutDeviceIntRegion&) override;
-  void UpdateOpaqueRegionInternal();
-
   void SetColorScheme(const mozilla::Maybe<mozilla::ColorScheme>&) override;
 
->>>>>>> upstream/release
   bool DispatchTouchEventFromWMPointer(UINT msg, LPARAM aLParam,
                                        const WinPointerInfo& aPointerInfo,
                                        mozilla::MouseButton aButton);
@@ -958,9 +948,9 @@ class nsWindow final : public nsBaseWidget {
 
   mozilla::DataMutex<Desktop> mDesktopId;
 
-  // If set, indicates the non-client-area region must be cleared to black on
-  // next paint.
-  bool mNeedsNCAreaClear = false;
+  // If set, indicates the edge of the NC region we should clear to black
+  // on next paint.  One of: ABE_TOP, ABE_BOTTOM, ABE_LEFT or ABE_RIGHT.
+  mozilla::Maybe<UINT> mClearNCEdge;
 
   friend class nsWindowGfx;
 

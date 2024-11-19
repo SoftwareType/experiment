@@ -2253,8 +2253,6 @@ nscoord nsBlockFrame::ComputeFinalSize(const ReflowInput& aReflowInput,
     // calculated from aspect-ratio. i.e. Don't carry out block margin-end if it
     // is replaced by the block size from aspect-ratio and inline size.
     aMetrics.mCarriedOutBEndMargin.Zero();
-<<<<<<< HEAD
-=======
   } else if (Maybe<nscoord> containBSize = ContainIntrinsicBSize()) {
     // If we're size-containing in block axis and we don't have a specified
     // block size, then our final size should actually be computed from only
@@ -2302,7 +2300,6 @@ nscoord nsBlockFrame::ComputeFinalSize(const ReflowInput& aReflowInput,
       }
     }
     finalSize.BSize(wm) = bSize;
->>>>>>> upstream/release
   } else {
     Maybe<nscoord> containBSize = ContainIntrinsicBSize(
         IsComboboxControlFrame() ? NS_UNCONSTRAINEDSIZE : 0);
@@ -2333,7 +2330,7 @@ nscoord nsBlockFrame::ComputeFinalSize(const ReflowInput& aReflowInput,
       finalSize.BSize(wm) = aReflowInput.AvailableBSize();
     } else if (aState.mReflowStatus.IsComplete()) {
       const nscoord lineClampedContentBlockEndEdge =
-          ApplyLineClamp(aReflowInput, this, blockEndEdgeOfChildren);
+          ApplyLineClamp(blockEndEdgeOfChildren);
 
       const nscoord bpBStart = borderPadding.BStart(wm);
       const nscoord contentBSize = blockEndEdgeOfChildren - bpBStart;

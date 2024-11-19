@@ -45,12 +45,9 @@ class CompositorWidgetParent final : public PCompositorWidgetParent,
   bool InitCompositor(layers::Compositor* aCompositor) override;
   bool IsHidden() const override;
 
-<<<<<<< HEAD
   bool HasGlass() const override;
 
-  nsSizeMode GetWindowSizeMode() const override;
-=======
->>>>>>> upstream/release
+  //nsSizeMode GetWindowSizeMode() const override;
   bool GetWindowIsFullyOccluded() const override;
 
   mozilla::ipc::IPCResult RecvInitialize(

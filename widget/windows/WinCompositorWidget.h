@@ -74,12 +74,9 @@ class WinCompositorWidget : public CompositorWidget {
   bool HasFxrOutputHandler() const { return !!mFxrHandler; }
   FxROutputHandler* GetFxrOutputHandler() const { return mFxrHandler.get(); }
 
-<<<<<<< HEAD
   virtual bool HasGlass() const = 0;
 
-  virtual nsSizeMode GetWindowSizeMode() const = 0;
-=======
->>>>>>> upstream/release
+  //virtual nsSizeMode GetWindowSizeMode() const = 0;
   virtual bool GetWindowIsFullyOccluded() const = 0;
 
   virtual void UpdateCompositorWnd(const HWND aCompositorWnd,
