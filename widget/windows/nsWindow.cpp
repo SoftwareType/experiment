@@ -949,12 +949,6 @@ nsresult nsWindow::Create(nsIWidget* aParent, const LayoutDeviceIntRect& aRect,
       mIsCloaked = mozilla::IsCloaked(mWnd);
       mFrameState->ConsumePreXULSkeletonState(WasPreXULSkeletonUIMaximized());
 
-      MOZ_ASSERT(BoundsUseDesktopPixels());
-      auto scale = GetDesktopToDeviceScale();
-      mBounds = mLastPaintBounds = LayoutDeviceIntRect::FromUnknownRect(
-          DesktopIntRect::Round(LayoutDeviceRect(GetBounds()) / scale)
-              .ToUnknownRect());
-
       // These match the margins set in browser-tabsintitlebar.js with
       // default prefs on Windows. Bug 1673092 tracks lining this up with
       // that more correctly instead of hard-coding it.
@@ -1084,13 +1078,6 @@ nsresult nsWindow::Create(nsIWidget* aParent, const LayoutDeviceIntRect& aRect,
 
   // Default to the system color scheme unless getting told otherwise.
   SetColorScheme(Nothing());
-
-  if (WinUtils::MicaEnabled() && !IsPopup()) {
-    // Enable Mica Alt Material if available.
-    const DWM_SYSTEMBACKDROP_TYPE tabbedWindow = DWMSBT_TABBEDWINDOW;
-    DwmSetWindowAttribute(mWnd, DWMWA_SYSTEMBACKDROP_TYPE, &tabbedWindow,
-                          sizeof tabbedWindow);
-  }
 
   if (mOpeningAnimationSuppressed) {
     SuppressAnimation(true);
@@ -1555,17 +1542,7 @@ void nsWindow::Show(bool aState) {
     // The first time we decide to actually show the window is when we decide
     // that we've taken over the window from the skeleton UI, and we should
     // no longer treat resizes / moves specially.
-    //
-    // NOTE(emilio): mIsShowingPreXULSkeletonUI feels a bit odd, or at least
-    // misnamed. During regular startup we create the skeleton UI, then the
-    // early blank window consumes it, and at that point we set
-    // mIsShowingPreXULSkeletonUI to false, but in fact, we're still showing
-    // the skeleton UI (because the blank window is, well, blank). We should
-    // consider guarding this with !mIsEarlyBlankWindow...
     mIsShowingPreXULSkeletonUI = false;
-    // Concomitantly, this is also when we change the cursor away from the
-    // default "wait" cursor.
-    SetCursor(Cursor{eCursor_standard});
 #if defined(ACCESSIBILITY)
     // If our HWND has focus and the a11y engine hasn't started yet, fire a
     // focus win event. Windows already did this when the skeleton UI appeared,
@@ -1872,45 +1849,13 @@ void nsWindow::Move(double aX, double aY) {
     return;
   }
 
-  // Normally, when the skeleton UI is disabled, we resize+move the window
-  // before showing it in order to ensure that it restores to the correct
-  // position when the user un-maximizes it. However, when we are using the
-  // skeleton UI, this results in the skeleton UI window being moved around
-  // undesirably before being locked back into the maximized position. To
-  // avoid this, we simply set the placement to restore to via
-  // SetWindowPlacement. It's a little bit more of a dance, though, since we
-  // need to convert the workspace coords that SetWindowPlacement uses to the
-  // screen space coordinates we normally use with SetWindowPos.
-  if (mIsShowingPreXULSkeletonUI && WasPreXULSkeletonUIMaximized()) {
-    WINDOWPLACEMENT pl = {sizeof(WINDOWPLACEMENT)};
-    VERIFY(::GetWindowPlacement(mWnd, &pl));
-
-    HMONITOR monitor = ::MonitorFromWindow(mWnd, MONITOR_DEFAULTTONULL);
-    if (NS_WARN_IF(!monitor)) {
-      return;
-    }
-    MONITORINFO mi = {sizeof(MONITORINFO)};
-    VERIFY(::GetMonitorInfo(monitor, &mi));
-
-    int32_t deltaX =
-        x + mi.rcWork.left - mi.rcMonitor.left - pl.rcNormalPosition.left;
-    int32_t deltaY =
-        y + mi.rcWork.top - mi.rcMonitor.top - pl.rcNormalPosition.top;
-    pl.rcNormalPosition.left += deltaX;
-    pl.rcNormalPosition.right += deltaX;
-    pl.rcNormalPosition.top += deltaY;
-    pl.rcNormalPosition.bottom += deltaY;
-    VERIFY(::SetWindowPlacement(mWnd, &pl));
-    return;
-  }
-
   mBounds.MoveTo(x, y);
 
   if (mWnd) {
 #ifdef DEBUG
     // complain if a window is moved offscreen (legal, but potentially
     // worrisome)
-    if (IsTopLevelWidget()) {  // only a problem for top-level windows
+    if (mIsTopWidgetWindow) {  // only a problem for top-level windows
       // Make sure this window is actually on the screen before we move it
       // XXX: Needs multiple monitor support
       HDC dc = ::GetDC(mWnd);
@@ -2036,6 +1981,7 @@ void nsWindow::Resize(double aWidth, double aHeight, bool aRepaint) {
         ChangedDPI();
       }
     }
+
     ResizeDirectManipulationViewport();
   }
 
@@ -2080,6 +2026,7 @@ void nsWindow::Resize(double aX, double aY, double aWidth, double aHeight,
     if (mIsShowingPreXULSkeletonUI && WasPreXULSkeletonUIMaximized()) {
       WINDOWPLACEMENT pl = {sizeof(WINDOWPLACEMENT)};
       VERIFY(::GetWindowPlacement(mWnd, &pl));
+
       HMONITOR monitor = ::MonitorFromWindow(mWnd, MONITOR_DEFAULTTONULL);
       if (NS_WARN_IF(!monitor)) {
         return;
@@ -2121,6 +2068,7 @@ void nsWindow::Resize(double aX, double aY, double aWidth, double aHeight,
                        SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
       }
     }
+
     ResizeDirectManipulationViewport();
   }
 
@@ -2762,7 +2710,8 @@ bool nsWindow::UpdateNonClientMargins(bool aReflowWindow) {
     mNonClientOffset.left = 0;
     mNonClientOffset.right = 0;
 
-    if (mozilla::Maybe<UINT> maybeEdge = GetHiddenTaskbarEdge()) {
+    mozilla::Maybe<UINT> maybeEdge = GetHiddenTaskbarEdge();
+    if (maybeEdge) {
       auto edge = maybeEdge.value();
       if (ABE_LEFT == edge) {
         mNonClientOffset.left -= kHiddenTaskbarSize;
@@ -2797,16 +2746,11 @@ nsresult nsWindow::SetNonClientMargins(const LayoutDeviceIntMargin& margins) {
     return NS_ERROR_INVALID_ARG;
   }
 
-  if (mNonClientMargins == margins) {
-    return NS_OK;
-  }
-
   if (mHideChrome) {
     mFutureMarginsOnceChromeShows = margins;
     mFutureMarginsToUse = true;
     return NS_OK;
   }
-
   mFutureMarginsToUse = false;
 
   // Request for a reset
@@ -2833,7 +2777,6 @@ nsresult nsWindow::SetNonClientMargins(const LayoutDeviceIntMargin& margins) {
   }
 
   mNonClientMargins = margins;
-
   mCustomNonClient = true;
   if (!UpdateNonClientMargins()) {
     NS_WARNING("UpdateNonClientMargins failed!");

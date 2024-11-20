@@ -2241,7 +2241,7 @@ LayoutDeviceIntSize nsNativeThemeWin::GetMinimumWidgetSize(
                                        GetSystemMetrics(SM_CXPADDEDBORDER));
         if (aAppearance == StyleAppearance::MozWindowButtonBoxMaximized) {
           result.width += 1;
-          result.height -= 2;
+          result.height += 6;
         }
         return result;
       }
